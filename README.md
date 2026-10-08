@@ -13,5 +13,8 @@ The large hourly files are not stored in this repo. Download the
 `city_hour.csv` and `station_hour.csv` in the `data/` folder.
 
 ## Run locally
+```
 cd backend
 python predict_local.py
+```
+
