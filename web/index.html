@@ -111,13 +111,21 @@ $("legend").innerHTML=CATS.map(c=>`<span><i style="background:var(${c[1]})"></i>
 const API_URL="https://6jbcxdek5rheielprhgtmp63su0wnqxa.lambda-url.ap-south-1.on.aws/"; // paste your AWS Lambda Function URL here after deploying
 async function fetchSeries(a,b){
   const direct=`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${a[0]},${b[0]}&longitude=${a[1]},${b[1]}&hourly=pm2_5&forecast_days=3&timezone=Asia%2FKolkata`;
-  const u=API_URL?`${API_URL.replace(/\/$/,"")}/?lat1=${a[0]}&lon1=${a[1]}&lat2=${b[0]}&lon2=${b[1]}`:direct;
-  const r=await fetch(u);if(!r.ok)throw new Error("HTTP "+r.status);
-  const j=await r.json();
-  if(API_URL)return j;
-  const arr=Array.isArray(j)?j:[j];
-  if(arr.length<2)arr.push(arr[0]);
-  return {time:arr[0].hourly.time,o:arr[0].hourly.pm2_5,d:arr[1].hourly.pm2_5,live:true};
+  if(!API_URL){
+    const r=await fetch(direct);if(!r.ok)throw new Error("HTTP "+r.status);
+    const j=await r.json();
+    const arr=Array.isArray(j)?j:[j];
+    if(arr.length<2)arr.push(arr[0]);
+    return {time:arr[0].hourly.time,o:arr[0].hourly.pm2_5,d:arr[1].hourly.pm2_5,live:true};
+  }
+  const qs=new URLSearchParams({
+    lat1:a[0],lon1:a[1],lat2:b[0],lon2:b[1],
+    mode:$("mode").value, traveller:$("who").value,
+    from_name:$("from").value, to_name:$("to").value
+  });
+  const r=await fetch(`${API_URL.replace(/\/$/,"")}/?${qs.toString()}`);
+  if(!r.ok)throw new Error("HTTP "+r.status);
+  return await r.json();
 }
 function demoSeries(){
   const now=new Date().toLocaleString("sv-SE",{timeZone:"Asia/Kolkata"}).replace(" ","T").slice(0,13);
@@ -171,7 +179,23 @@ async function run(e){
   $("advice").innerHTML=`<p><b>Best hour: ${fmtH(best.t)}.</b> PM2.5 about ${Math.round(best.pm)} &micro;g/m&sup3;, CPCB sub-index ${subIndex(best.pm)} (${CATS[bc][0]}).</p>
   <p><b>Worst hour: ${fmtH(worst.t)}.</b> PM2.5 about ${Math.round(worst.pm)} &micro;g/m&sup3;, CPCB sub-index ${subIndex(worst.pm)} (${CATS[wc][0]}).</p>
   <p>${extra}${mask}</p>`;
+  const box=document.getElementById("agentAdvice");
+  const txt=document.getElementById("adviceText");
+  if(box&&txt){
+    if(s&&s.advice&&String(s.advice).trim()){txt.textContent=s.advice;box.hidden=false}
+    else{box.hidden=true}
+  }
 }
+(function(){
+  const advice=$("advice");
+  if(!advice)return;
+  const box=document.createElement("div");
+  box.id="agentAdvice";
+  box.hidden=true;
+  box.style.cssText="background:#174d36;color:#fbfaf5;padding:18px 22px;border-radius:12px;margin:18px 0;font-size:1.05rem;line-height:1.55;";
+  box.innerHTML='<strong style="color:#8fd4b0;letter-spacing:.02em;">AirRoute says:</strong> <span id="adviceText"></span>';
+  advice.parentNode.insertBefore(box, advice);
+})();
 $("f").addEventListener("submit",run);
 </script>
 </body>

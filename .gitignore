@@ -13,3 +13,6 @@ data/city_hour.csv
 data/*.zip
 
 *.mp4
+*.zip
+*.json
+stage/
