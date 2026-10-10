@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AirRoute predicts Delhi AQI and helps people understand air quality risks.">
+  <title>AirRoute — Environmental Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="AirRoute home">
+      <span class="brand-mark">A</span>
+      <span>AirRoute</span>
+    </a>
+    <nav aria-label="Primary navigation">
+      <a href="#overview">Overview</a>
+      <a href="#predictor">Predictor</a>
+      <a href="#impact">Impact</a>
+      <a href="#tracks">Tracks</a>
+      <a href="#planner">Plan</a>
+    </nav>
+    <a class="header-cta" href="#predictor">Start prediction <span>↗</span></a>
+  </header>
+
+  <main id="top">
+    <section class="hero" id="overview">
+      <div class="hero-copy">
+        <div class="eyebrow"><span></span> Built for cleaner cities</div>
+        <h1>Know what the air<br><em>is asking you.</em></h1>
+        <p>Explore Delhi’s air quality, model pollution exposure, and uncover practical actions before the next unhealthy day.</p>
+        <div class="hero-actions">
+          <a class="primary-button" href="#predictor">Predict AQI <span>→</span></a>
+          <a class="text-link" href="#insights">See the data story</a>
+        </div>
+      </div>
+      <div class="hero-visual" aria-label="Air quality dashboard preview">
+        <div class="orb orb-one"></div>
+        <div class="orb orb-two"></div>
+        <div class="aqi-card">
+          <div class="card-topline">
+            <span>Delhi AQI</span>
+            <span class="live-pill"><i></i> Local model</span>
+          </div>
+          <div class="aqi-number"><strong id="hero-aqi">256</strong><span>index</span></div>
+          <div class="category-row"><span class="status-dot"></span><strong id="hero-category">Very Poor</strong></div>
+          <div class="mini-chart" id="mini-chart" aria-hidden="true"></div>
+          <div class="card-footer"><span>PM2.5 <b id="hero-pm25">150</b></span><span>PM10 <b id="hero-pm10">250</b></span></div>
+        </div>
+        <div class="floating-note note-one"><span>↗</span><div><small>Air quality</small><strong>Needs attention</strong></div></div>
+        <div class="floating-note note-two"><span>✓</span><div><small>Model inputs</small><strong>Ready to explore</strong></div></div>
+      </div>
+    </section>
+
+    <section class="stats-strip" aria-label="Project facts">
+      <div><strong>3</strong><span>Model inputs: day, PM2.5, PM10</span></div>
+      <div><strong>6</strong><span>CPCB AQI categories</span></div>
+      <div><strong>5</strong><span>Audience profiles</span></div>
+      <div><strong>0</strong><span>Runtime dependencies</span></div>
+    </section>
+
+    <section class="predictor-section" id="predictor">
+      <div class="section-heading">
+        <div><span class="section-number">01</span><p>Interactive predictor</p></div>
+        <h2>Turn pollution data into<br><em>clearer decisions.</em></h2>
+      </div>
+      <div class="predictor-grid">
+        <form class="control-panel" id="prediction-form">
+          <div class="input-heading">
+            <span>Choose your inputs</span>
+            <small>Model: Delhi AQI estimate</small>
+          </div>
+          <label for="day-num">Day number <output id="day-output">2000</output></label>
+          <input id="day-num" type="range" min="0" max="5000" value="2000" step="1">
+          <label for="pm25">PM2.5 concentration <output id="pm25-output">150 μg/m³</output></label>
+          <input id="pm25" type="range" min="0" max="1000" value="150" step="1">
+          <label for="pm10">PM10 concentration <output id="pm10-output">250 μg/m³</output></label>
+          <input id="pm10" type="range" min="0" max="2000" value="250" step="1">
+          <label for="audience" class="audience-field">Audience
+            <select id="audience">
+              <option value="general">General public</option>
+              <option value="children">Children</option>
+              <option value="elderly">Elderly</option>
+              <option value="outdoor">Outdoor workers</option>
+              <option value="asthma">People with asthma</option>
+            </select>
+          </label>
+          <button type="submit" class="predict-button">Predict air quality <span>→</span></button>
+          <p class="form-note">Inputs are passed to the saved AirRoute model. No account or API key is required.</p>
+        </form>
+
+        <div class="result-panel">
+          <div class="result-header">
+            <span>Prediction result</span>
+            <span class="model-badge">Linear regression</span>
+          </div>
+          <div class="result-main">
+            <span>Estimated AQI</span>
+            <div><strong id="result-aqi">256</strong><small>index</small></div>
+            <div class="result-category"><i></i><b id="result-category">Very Poor</b></div>
+          </div>
+          <div class="result-grid">
+            <div><span>Risk level</span><strong id="risk-level">High exposure</strong></div>
+            <div><span>Best outside window</span><strong id="safe-window">Avoid now</strong></div>
+          </div>
+          <div class="recommendation">
+            <span class="recommend-icon">!</span>
+            <div><small>Recommended action</small><p id="recommendation">Limit outdoor activity and use indoor filtration where possible.</p></div>
+          </div>
+          <ul id="safety-actions" class="safety-actions">
+            <li>Keep windows closed when possible.</li>
+            <li>Use a mask during outdoor travel.</li>
+          </ul>
+          <div class="api-status"><i></i><span id="api-status">Connected to local AirRoute API</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="insights-section" id="insights">
+      <div class="section-heading light-heading">
+        <div><span class="section-number">02</span><p>Why it matters</p></div>
+        <h2>Better visibility means<br><em>better choices.</em></h2>
+      </div>
+      <div class="insight-grid">
+        <article><span>01</span><div class="insight-icon">☁</div><h3>Pollution exposure</h3><p>Connect PM2.5 and PM10 to a simple AQI forecast for faster risk awareness.</p></article>
+        <article><span>02</span><div class="insight-icon">⌁</div><h3>Local action</h3><p>Translate model output into practical safety advice for schools, homes, and daily routines.</p></article>
+        <article><span>03</span><div class="insight-icon">↗</div><h3>Public impact</h3><p>Build a shared information layer that helps communities understand environmental change.</p></article>
+      </div>
+    </section>
+
+    <section class="impact-section" id="impact">
+      <div class="section-heading">
+        <div><span class="section-number">03</span><p>Who it protects</p></div>
+        <h2>Protect the people<br><em>most exposed.</em></h2>
+      </div>
+      <div class="impact-grid">
+        <article>
+          <span class="impact-tag">Students</span>
+          <h3>School commute safety</h3>
+          <p>Warn families when outdoor activity should be limited and help plan safer routes to school and back home.</p>
+        </article>
+        <article>
+          <span class="impact-tag">Elders</span>
+          <h3>Health-first planning</h3>
+          <p>Reduce exposure during the most dangerous hours and support safer daily routines for vulnerable residents.</p>
+        </article>
+        <article>
+          <span class="impact-tag">Workers</span>
+          <h3>Outdoor work decisions</h3>
+          <p>Help commuters and workers shift activity indoors before pollution spikes and reduce risky exposure windows.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="tracks-section" id="tracks">
+      <div class="section-heading light-heading">
+        <div><span class="section-number">04</span><p>Three environmental tracks</p></div>
+        <h2>Build the future of<br><em>clean living.</em></h2>
+      </div>
+      <div class="track-grid">
+        <article class="track-card track-air"><span>01</span><div class="track-icon">◌</div><h3>Air</h3><p>AQI, pollution exposure, indoor air quality, and school safety.</p><ul><li>Pollution alerts</li><li>Exposure mapping</li><li>Local monitoring</li></ul></article>
+        <article class="track-card track-water"><span>02</span><div class="track-icon">≈</div><h3>Heat & Water</h3><p>Heatwaves, floods, monsoon waterlogging, droughts, and leaks.</p><ul><li>Water planning</li><li>Flood alerts</li><li>Leak detection</li></ul></article>
+        <article class="track-card track-waste"><span>03</span><div class="track-icon">♲</div><h3>Waste & Energy</h3><p>Recycling, e-waste, informal recyclers, rooftop solar, and EV use.</p><ul><li>Smart sorting</li><li>Energy insights</li><li>Community impact</li></ul></article>
+      </div>
+    </section>
+
+    <section class="planner-section" id="planner">
+      <div class="planner-copy">
+        <div><span class="section-number">05</span><p>Build planner</p></div>
+        <h2>Turn the idea into<br><em>an action plan.</em></h2>
+        <p>Save a project goal, choose its environmental track, and create a focused plan for your team.</p>
+        <form id="task-form">
+          <label for="task-title">Project goal<input id="task-title" type="text" placeholder="e.g. Air quality alerts for Delhi" required></label>
+          <label for="task-track">Track<select id="task-track"><option>Air</option><option>Heat & Water</option><option>Waste & Energy</option><option>General</option></select></label>
+          <button type="submit" class="predict-button">Add to project plan <span>+</span></button>
+        </form>
+      </div>
+      <div class="planner-board">
+        <div class="board-header"><strong>Your project plan</strong><span id="task-count">0 tasks</span></div>
+        <div id="task-list" class="task-list"><div class="empty-state"><span>⌁</span><strong>No tasks yet</strong><p>Add your first project goal to begin.</p></div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><a class="brand footer-brand" href="#top"><span class="brand-mark">A</span><span>AirRoute</span></a><p>Environmental intelligence for healthier cities.</p><span>Built for Environmental Hacks · 2026</span></footer>
+  <script src="app.js"></script>
+</body>
+</html>

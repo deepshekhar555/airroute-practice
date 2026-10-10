@@ -11,3 +11,5 @@ build/
 data/station_hour.csv
 data/city_hour.csv
 data/*.zip
+
+*.mp4
