@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AirRoute: leave when the air lets you</title>
+<meta name="description" content="Pick a commute in Delhi and see which departure hour exposes you to the least PM2.5.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#15251f;--muted:#66736d;--paper:#fbfaf5;--green:#2f7d59;--green-dark:#174d36;--lime:#d9f17f;--orange:#ef8d4c;--line:rgba(21,37,31,.13);
+--c0:#5fa8a0;--c1:#9bbf6a;--c2:#e2b33b;--c3:#e0782f;--c4:#c23b2e;--c5:#7a1f3d}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);background:var(--paper);font:17px/1.6 "DM Sans",system-ui,sans-serif}
+.site-header{height:76px;padding:0 6vw;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:rgba(251,250,245,.92);position:sticky;top:0;z-index:20}
+.brand{display:flex;align-items:center;gap:10px;font:800 20px "Manrope",system-ui,sans-serif;color:var(--ink);text-decoration:none}
+.brand-mark{width:34px;height:34px;border-radius:50% 50% 50% 10%;background:var(--green-dark);color:#fff;display:grid;place-items:center;font-size:16px}
+.header-cta{background:var(--ink);color:#fff;padding:11px 18px;border-radius:30px;font-size:13px;font-weight:700;text-decoration:none}
+.hero{padding:72px 6vw 60px;background:radial-gradient(circle at 88% 28%,#e9e8ca 0 17%,transparent 17.5%),radial-gradient(circle at 80% 78%,#c6e4b3 0 8%,transparent 8.5%)}
+h1{font:800 clamp(44px,6.4vw,92px)/.98 "Manrope",system-ui,sans-serif;letter-spacing:-.05em;margin:0 0 20px;max-width:10.5em}
+h1 em{color:var(--green);font-style:normal}
+.lede{max-width:34em;color:var(--muted);font-size:18px;margin:0}
+.stats-strip{background:var(--green-dark);color:#fff;padding:30px 6vw;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:18px 0}
+.stats-strip div{padding:4px 28px;border-right:1px solid rgba(255,255,255,.16)}
+.stats-strip div:last-child{border:0}
+.stats-strip strong{display:block;font:800 30px "Manrope",system-ui,sans-serif}
+.stats-strip span{font-size:13px;color:#b9c8c1}
+main{max-width:1040px;margin:0 auto;padding:60px 22px 70px}
+.panel{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;align-items:end;background:#fff;border:1px solid var(--line);padding:26px;box-shadow:0 25px 70px rgba(26,50,39,.07)}
+label{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:14px}
+select,button{font:inherit;padding:12px 13px;border:1px solid var(--line);border-radius:4px;background:#fff;color:var(--ink)}
+button{background:var(--green);color:#fff;border-color:var(--green);font-weight:700;cursor:pointer;box-shadow:0 10px 30px rgba(47,125,89,.2)}
+button:hover{background:var(--green-dark)}
+:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+#status{margin:14px 0 0;font-size:14px;color:var(--muted)}
+#status.warn{color:#a34b31}
+#result{margin-top:40px}
+.verdict{font:800 clamp(28px,4vw,46px)/1.05 "Manrope",system-ui,sans-serif;letter-spacing:-.04em;margin:0 0 8px}
+.sub{color:var(--muted);margin:0 0 24px}
+.strip{display:flex;align-items:flex-end;gap:3px;height:240px;border-bottom:2px solid var(--ink);padding-top:6px}
+.bar{flex:1;min-width:0;border-radius:3px 3px 0 0}
+.bar.best{outline:3px solid var(--ink);outline-offset:2px;z-index:1}
+.bar.now{box-shadow:inset 0 -6px 0 rgba(255,255,255,.55)}
+.ticks{display:flex;gap:3px;font-size:11px;color:var(--muted);margin-top:4px}
+.ticks span{flex:1;text-align:center;overflow:hidden}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);margin-top:14px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-top:28px}
+.card{background:#f6f5ec;border:1px solid var(--line);padding:18px}
+.card b{display:block;font:800 34px "Manrope",system-ui,sans-serif;letter-spacing:-.04em}
+.card span{color:var(--muted);font-size:13px}
+.advice{margin-top:22px;background:#fff;border:1px solid var(--line);border-left:6px solid var(--orange);padding:18px 20px}
+.advice p{margin:0 0 6px;font-size:15px}
+footer{margin-top:44px;font-size:13px;color:var(--muted);max-width:46em}
+@media (max-width:560px){.hero{padding:48px 22px}.site-header{padding:0 22px}.stats-strip div{border:0}}
+@media (prefers-reduced-motion:no-preference){.bar{transition:height .35s ease}}</style>
+</head>
+<body>
+<header class="site-header"><a class="brand" href="#top"><span class="brand-mark">A</span><span>AirRoute</span></a><a class="header-cta" href="#planner">Plan my trip</a></header>
+<section class="hero" id="top"><h1>Leave when the air <em>lets you.</em></h1><p class="lede">Choose where you are going in Delhi and how you travel. AirRoute compares the next 24 departure hours and shows which one costs your lungs the least PM2.5.</p></section>
+<section class="stats-strip" aria-label="Project facts"><div><strong>24</strong><span>Departure hours compared per trip</span></div><div><strong>14</strong><span>Delhi areas to travel between</span></div><div><strong>5</strong><span>Ways to travel, walking to metro</span></div><div><strong>AWS</strong><span>Lambda forecast API on Amplify</span></div></section>
+<main id="planner"><form class="panel" id="f">
+<label>From<select id="from"></select></label>
+<label>To<select id="to"></select></label>
+<label>How you travel<select id="mode"></select></label>
+<label>Who is travelling<select id="who">
+<option value="general">Healthy adult</option>
+<option value="child">Child</option>
+<option value="elder">Older adult</option>
+<option value="asthma">Asthma or heart condition</option></select></label>
+<button type="submit">Find my best hour</button>
+</form>
+<p id="status" role="status">Pick a trip to begin.</p>
+
+<section id="result" hidden aria-live="polite">
+<p class="verdict" id="verdict"></p>
+<p class="sub" id="sub"></p>
+<div class="strip" id="strip" role="img" aria-label="Exposure by departure hour"></div>
+<div class="ticks" id="ticks"></div>
+<div class="legend" id="legend"></div>
+<div class="cards">
+<div class="card"><b id="k1"></b><span>PM2.5 on your best departure (&micro;g/m&sup3;)</span></div>
+<div class="card"><b id="k2"></b><span>PM2.5 on your worst departure (&micro;g/m&sup3;)</span></div>
+<div class="card"><b id="k3"></b><span>Trip length and time at this speed</span></div>
+</div>
+<div class="advice" id="advice"></div>
+</section>
+
+<footer>
+<p><b>How it works.</b> Hourly PM2.5 comes from the Open-Meteo air quality forecast (a CAMS model), fetched for your start and end points. For each departure hour it averages the pollution you would meet at the start and the end of the trip, then multiplies by travel time and a breathing-and-shelter factor for your mode. The factors (walk 1.0, cycle 1.8, bus or auto 0.9, metro 0.6, car with windows up 0.55) are planning assumptions, not measurements. Distance is straight-line times 1.3. The AQI bands are CPCB PM2.5 sub-index bands. This is guidance for planning, not medical advice, and it is a model forecast rather than a station reading.</p>
+</footer>
+</main>
+<script>
+const PLACES={"Connaught Place":[28.6315,77.2167],"Anand Vihar":[28.6469,77.3164],"Dwarka Sector 8":[28.5710,77.0676],"Rohini":[28.7495,77.0565],"Saket":[28.5245,77.2066],"Lajpat Nagar":[28.5677,77.2433],"Nehru Place":[28.5491,77.2518],"Karol Bagh":[28.6519,77.1909],"Vasant Kunj":[28.5200,77.1570],"Pitampura":[28.7033,77.1319],"Janakpuri":[28.6219,77.0878],"Mayur Vihar":[28.6086,77.2985],"IGI Airport":[28.5562,77.1000],"Narela":[28.8527,77.0929]};
+const MODES={walk:{n:"Walk",v:5,f:1},cycle:{n:"Cycle",v:15,f:1.8},bus:{n:"Bus or auto-rickshaw",v:14,f:.9},metro:{n:"Metro",v:28,f:.6},car:{n:"Car, windows up",v:20,f:.55}};
+const BANDS=[[0,30,0,50],[30,60,50,100],[60,90,100,200],[90,120,200,300],[120,250,300,400],[250,500,400,500]];
+const CATS=[["Good","--c0"],["Satisfactory","--c1"],["Moderate","--c2"],["Poor","--c3"],["Very Poor","--c4"],["Severe","--c5"]];
+const $=id=>document.getElementById(id);
+function catIdx(pm){for(let i=0;i<BANDS.length;i++)if(pm<=BANDS[i][1])return i;return 5}
+function subIndex(pm){const i=catIdx(pm),[a,b,x,y]=BANDS[i];return Math.round(x+(Math.min(pm,500)-a)*(y-x)/(b-a))}
+function km(a,b){const R=6371,r=Math.PI/180,dl=(b[0]-a[0])*r,dg=(b[1]-a[1])*r;
+const h=Math.sin(dl/2)**2+Math.cos(a[0]*r)*Math.cos(b[0]*r)*Math.sin(dg/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
+function fmtH(t){const h=+t.slice(11,13);return (h%12||12)+(h<12?" am":" pm")}
+Object.keys(PLACES).forEach(p=>{["from","to"].forEach(id=>$(id).add(new Option(p,p)))});
+$("to").selectedIndex=1;
+Object.entries(MODES).forEach(([k,m])=>$("mode").add(new Option(m.n,k)));
+$("legend").innerHTML=CATS.map(c=>`<span><i style="background:var(${c[1]})"></i>${c[0]}</span>`).join("");
+
+const API_URL="https://6jbcxdek5rheielprhgtmp63su0wnqxa.lambda-url.ap-south-1.on.aws/"; // paste your AWS Lambda Function URL here after deploying
+async function fetchSeries(a,b){
+  const direct=`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${a[0]},${b[0]}&longitude=${a[1]},${b[1]}&hourly=pm2_5&forecast_days=3&timezone=Asia%2FKolkata`;
+  const u=API_URL?`${API_URL.replace(/\/$/,"")}/?lat1=${a[0]}&lon1=${a[1]}&lat2=${b[0]}&lon2=${b[1]}`:direct;
+  const r=await fetch(u);if(!r.ok)throw new Error("HTTP "+r.status);
+  const j=await r.json();
+  if(API_URL)return j;
+  const arr=Array.isArray(j)?j:[j];
+  if(arr.length<2)arr.push(arr[0]);
+  return {time:arr[0].hourly.time,o:arr[0].hourly.pm2_5,d:arr[1].hourly.pm2_5,live:true};
+}
+function demoSeries(){
+  const now=new Date().toLocaleString("sv-SE",{timeZone:"Asia/Kolkata"}).replace(" ","T").slice(0,13);
+  const t0=new Date(now+":00:00Z"),time=[],o=[],d=[];
+  for(let i=0;i<72;i++){const t=new Date(t0.getTime()+i*36e5),h=t.getUTCHours();
+    time.push(t.toISOString().slice(0,13)+":00");
+    const base=95+55*Math.exp(-((h-8)**2)/6)+70*Math.exp(-((h-22)**2)/8)-30*Math.exp(-((h-15)**2)/10);
+    o.push(Math.round(base));d.push(Math.round(base*1.08))}
+  return {time,o,d,live:false};
+}
+function plan(s,dur,f){
+  const now=new Date().toLocaleString("sv-SE",{timeZone:"Asia/Kolkata"}).replace(" ","T").slice(0,13);
+  let i0=s.time.findIndex(t=>t.slice(0,13)>=now);if(i0<0)i0=0;
+  const out=[];
+  for(let k=0;k<24&&i0+k<s.time.length;k++){
+    const s0=i0+k,e=Math.min(s.time.length-1,s0+Math.max(0,Math.round(dur)));
+    const vals=[s.o[s0],s.d[s0],s.o[e],s.d[e]].filter(v=>v!=null);
+    if(!vals.length)continue;
+    const pm=vals.reduce((a,b)=>a+b,0)/vals.length;
+    out.push({t:s.time[s0],pm,dose:pm*dur*f});
+  }
+  return out;
+}
+async function run(e){
+  e&&e.preventDefault();
+  const A=PLACES[$("from").value],B=PLACES[$("to").value],m=MODES[$("mode").value],who=$("who").value;
+  if($("from").value===$("to").value){$("status").textContent="Choose two different places.";$("status").className="warn";return}
+  const dist=km(A,B)*1.3,dur=dist/m.v;
+  $("status").className="";$("status").textContent="Fetching the air quality forecast...";
+  let s;
+  try{s=await fetchSeries(A,B);$("status").textContent="Live forecast loaded for both ends of your trip."}
+  catch(err){s=demoSeries();$("status").className="warn";$("status").textContent="Could not reach the forecast service, so this chart uses built-in demo data, not today's air. Check your connection and try again."}
+  const rows=plan(s,dur,m.f);
+  if(!rows.length){$("status").textContent="No forecast hours available.";return}
+  const best=rows.reduce((a,b)=>b.dose<a.dose?b:a),worst=rows.reduce((a,b)=>b.dose>a.dose?b:a),now=rows[0];
+  const cut=now.dose>0?Math.round(100*(now.dose-best.dose)/now.dose):0;
+  const max=worst.dose||1;
+  $("result").hidden=false;
+  $("verdict").textContent=best===now?"Leaving now is already your best hour.":`Leave at ${fmtH(best.t)} and breathe ${cut}% less than if you leave now.`;
+  $("sub").textContent=`${$("from").value} to ${$("to").value} by ${m.n.toLowerCase()}. Bars show relative exposure for each departure hour over the next day. Taller means more.`;
+  $("strip").innerHTML=rows.map(r=>{const c=CATS[catIdx(r.pm)][1];
+    return `<div class="bar${r===best?" best":""}${r===now?" now":""}" title="${fmtH(r.t)}: PM2.5 about ${Math.round(r.pm)}, ${CATS[catIdx(r.pm)][0]}" style="height:${Math.max(6,100*r.dose/max)}%;background:var(${c})"></div>`}).join("");
+  $("ticks").innerHTML=rows.map((r,i)=>`<span>${i%3===0?fmtH(r.t).replace(" ",""):""}</span>`).join("");
+  $("k1").textContent=Math.round(best.pm);$("k2").textContent=Math.round(worst.pm);
+  $("k3").textContent=`${dist.toFixed(1)} km, ${Math.round(dur*60)} min`;
+  const bc=catIdx(best.pm),wc=catIdx(worst.pm);
+  const extra={general:"",child:" Children breathe faster for their size, so keep outdoor stretches short and avoid cycling or walking to school at your worst hours.",
+    elder:" Older adults should avoid long walks at the worst hours and keep any medication within reach.",
+    asthma:" Keep your reliever inhaler with you, avoid exertion at the worst hours, and consider travelling by metro or car with windows up."}[who];
+  const mask=bc>=3||m.f>=1?" A well-fitted N95 or FFP2 mask helps on open modes when the air is Poor or worse.":"";
+  $("advice").innerHTML=`<p><b>Best hour: ${fmtH(best.t)}.</b> PM2.5 about ${Math.round(best.pm)} &micro;g/m&sup3;, CPCB sub-index ${subIndex(best.pm)} (${CATS[bc][0]}).</p>
+  <p><b>Worst hour: ${fmtH(worst.t)}.</b> PM2.5 about ${Math.round(worst.pm)} &micro;g/m&sup3;, CPCB sub-index ${subIndex(worst.pm)} (${CATS[wc][0]}).</p>
+  <p>${extra}${mask}</p>`;
+}
+$("f").addEventListener("submit",run);
+</script>
+</body>
+</html>
